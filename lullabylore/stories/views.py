@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .firestore_service import add_story, get_all_stories
+from .firestore_service import add_story, get_all_stories, get_random_story
 
 
 def is_admin(user):
@@ -26,3 +26,7 @@ def add_story_view(request):
 def get_stories_view(request):
   stories = get_all_stories()
   return JsonResponse(stories, safe=False)
+
+def get_random_story_view(request):
+  random_story = get_random_story()
+  return JsonResponse(random_story, safe=False)
