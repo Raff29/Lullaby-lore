@@ -1,4 +1,5 @@
 from .firebase_init import db
+import random
 
 def add_story(title, content, author, age_group, date):
   doc_ref = db.collection("stories").document()
@@ -9,6 +10,12 @@ def add_story(title, content, author, age_group, date):
         "age_group": age_group,
         "date": date
     })
+  
+def get_random_story():
+  stories = get_all_stories()
+  if stories:
+    return random.choice(stories)
+  return None
   
 def get_all_stories():
   stories_ref = db.collection("stories")
