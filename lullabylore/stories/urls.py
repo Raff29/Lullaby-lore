@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import StoryOfTheDay
+from . import views
 
 urlpatterns = [
-  path('story-of-the-day/', StoryOfTheDay.as_view(), name='story-of-the-day'),
+    path('add-story/', views.add_story_view, name='add_story'),
+    path('get-stories/', views.get_stories_view, name='get_stories'),
 ]
