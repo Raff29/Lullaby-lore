@@ -29,3 +29,7 @@ def get_all_stories():
 def update_story(story_id, updates):
   story_ref = db.collection("stories").document(story_id)
   story_ref.update(updates)
+  
+def delete_story(story_id):
+  story_ref = db.collection("stories").document(story_id)
+  story_ref.delete()
