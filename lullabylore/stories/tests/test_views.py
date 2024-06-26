@@ -71,6 +71,24 @@ class StoryViewTests(TestCase):
       self.assertIn('age_group', story)
       self.assertIn('date', story)
       
+      
+    @mock.patch('stories.views.update_story')
+    def test_update_story_view(self, mock_update_story):
+        mock_update_story.return_value = 'None'
+
+        response = self.client.patch(
+            reverse('update_story', args=['story_id']),
+            {
+                'title': 'Updated Story',
+                'content': 'Updated content',
+                'author': 'Updated Author',
+                'age_group': 'Updated Age Group',
+                'date': '2021-01-01'
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'message': 'Story updated successfully!'})
+      
 
     def tearDown(self):
         return self.client.logout()
