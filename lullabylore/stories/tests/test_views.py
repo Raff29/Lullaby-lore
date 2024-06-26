@@ -28,50 +28,52 @@ class StoryViewTests(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {'message': 'Story added successfully!'})
+        self.assertEqual(response.json(), {
+                         'message': 'Story added successfully!'})
 
     @mock.patch('stories.views.get_all_stories')
     def test_get_stories_view(self, mock_get_all_stories):
-    # Mock get_all_stories to return exactly two stories
-      mock_get_all_stories.return_value = [
-          {'title': 'Existing Story 1', 'content': 'This is an existing story 1.',
-              'author': 'Existing Author 1', 'age_group': '3-5', 'date': '2021-01-01'},
-          {'title': 'Existing Story 2', 'content': 'This is an existing story 2.',
-              'author': 'Existing Author 2', 'age_group': '3-5', 'date': '2021-01-01'}
-      ]
+        # Mock get_all_stories to return exactly two stories
+        mock_get_all_stories.return_value = [
+            {'title': 'Existing Story 1', 'content': 'This is an existing story 1.',
+                'author': 'Existing Author 1', 'age_group': '3-5', 'date': '2021-01-01'},
+            {'title': 'Existing Story 2', 'content': 'This is an existing story 2.',
+                'author': 'Existing Author 2', 'age_group': '3-5', 'date': '2021-01-01'}
+        ]
 
-      response = self.client.get(reverse('get_stories'))
-      self.assertEqual(response.status_code, 200)
-      stories = response.json()
-      self.assertIsInstance(stories, list)
-      self.assertEqual(len(stories), 2)
-      self.assertTrue(
-          any(story['title'] == 'Existing Story 1' for story in stories))
-      self.assertTrue(
-          any(story['title'] == 'Existing Story 2' for story in stories))
+        response = self.client.get(reverse('get_stories'))
+        self.assertEqual(response.status_code, 200)
+        stories = response.json()
+        self.assertIsInstance(stories, list)
+        self.assertEqual(len(stories), 2)
+        self.assertTrue(
+            any(story['title'] == 'Existing Story 1' for story in stories))
+        self.assertTrue(
+            any(story['title'] == 'Existing Story 2' for story in stories))
 
     @mock.patch('stories.views.get_random_story')
     def test_get_random_story_view(self, mock_get_random_story):
-      stories = [
-        {'title': 'Random Story', 'content': 'This is a random test story.', 'author': 'Random Author', 'age_group': '3-5', 'date': '2021-01-01'},
-        {'title': 'Random Story2', 'content': 'This is a random test story.2', 'author': 'Random Author', 'age_group': '3-5', 'date': '2021-01-01'}
-    ]
-      selected_story = random.choice(stories)
-      
-      mock_get_random_story.return_value = selected_story
-      
-      response = self.client.get(reverse('get_random_story'))
-      
-      self.assertEqual(response.status_code, 200)
-      story = response.json()
-      self.assertIsInstance(story, dict)
-      self.assertIn(story['title'], ['Random Story', 'Random Story2']) 
-      self.assertIn('content', story)
-      self.assertIn('author', story)
-      self.assertIn('age_group', story)
-      self.assertIn('date', story)
-      
-      
+        stories = [
+            {'title': 'Random Story', 'content': 'This is a random test story.',
+                'author': 'Random Author', 'age_group': '3-5', 'date': '2021-01-01'},
+            {'title': 'Random Story2', 'content': 'This is a random test story.2',
+             'author': 'Random Author', 'age_group': '3-5', 'date': '2021-01-01'}
+        ]
+        selected_story = random.choice(stories)
+
+        mock_get_random_story.return_value = selected_story
+
+        response = self.client.get(reverse('get_random_story'))
+
+        self.assertEqual(response.status_code, 200)
+        story = response.json()
+        self.assertIsInstance(story, dict)
+        self.assertIn(story['title'], ['Random Story', 'Random Story2'])
+        self.assertIn('content', story)
+        self.assertIn('author', story)
+        self.assertIn('age_group', story)
+        self.assertIn('date', story)
+
     @mock.patch('stories.views.update_story')
     def test_update_story_view(self, mock_update_story):
         mock_update_story.return_value = 'None'
@@ -87,8 +89,18 @@ class StoryViewTests(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {'message': 'Story updated successfully!'})
-      
+        self.assertEqual(response.json(), {
+                         'message': 'Story updated successfully!'})
+
+    @mock.patch('stories.views.delete_story')
+    def test_delete_story_views(self, mock_delete_story):
+        mock_delete_story.return_value = 'None'
+
+        response = self.client.delete(
+            reverse('delete_story', args=['story_id']))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+                         'message': 'Story deleted successfully!'})
 
     def tearDown(self):
         return self.client.logout()

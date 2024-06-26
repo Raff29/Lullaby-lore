@@ -1,6 +1,6 @@
 from django.test import TestCase
 from unittest import mock
-from ..firestore_service import get_all_stories, add_story, get_random_story, update_story
+from ..firestore_service import get_all_stories, add_story, get_random_story, update_story, delete_story
 
 
 class StoryServiceTests(TestCase):
@@ -87,3 +87,27 @@ def test_update_story_service(mock_db_collection):
         'age_group': '3-5',
         'date': '2021-01-01',
     })
+
+
+@mock.patch('stories.firestore_service.db.collection')
+def test_delete_story_service(self, mock_get_all_stories, mock_db_collection):
+    existing_stories_before_deletion = [
+        {'story_id': '1', 'title': 'Story 1'},
+        {'story_id': '2', 'title': 'Story to be deleted'},
+        {'story_id': '3', 'title': 'Story 2'},
+    ]
+
+    mock_get_all_stories.return_value = existing_stories_before_deletion
+
+    delete_story('2')
+
+    updated_stories_after_deletion = [
+        story for story in existing_stories_before_deletion if story['story_id'] != '2'
+    ]
+
+    mock_get_all_stories.return_value = updated_stories_after_deletion
+
+    stories = get_all_stories()
+
+    self.assertNotIn(
+        {'story_id': '2', 'title': 'Story to be deleted'}, stories)

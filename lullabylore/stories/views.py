@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import user_passes_test
-from .firestore_service import add_story, get_all_stories, get_random_story, update_story
+from .firestore_service import add_story, get_all_stories, get_random_story, update_story, delete_story
 
 
 def is_admin(user):
@@ -50,3 +50,14 @@ def update_story_view(request, story_id):
     return JsonResponse({'message': 'Story updated successfully!'})
 
   return JsonResponse({'message': 'Only admins can update stories!'}, status=403)
+
+@require_http_methods(["DELETE"])
+@user_passes_test(is_admin)
+def delete_story_view(request, story_id):
+  if request.method == 'DELETE':
+    delete_story(story_id)
+    return JsonResponse({'message': 'Story deleted successfully!'})
+  
+  return JsonResponse({'message': 'Only admins can delete stories!'}, status=403)
+    
+  
