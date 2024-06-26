@@ -25,3 +25,7 @@ def get_all_stories():
   for doc in docs:
     stories.append(doc.to_dict())
   return stories
+
+def update_story(story_id, updates):
+  story_ref = db.collection("stories").document(story_id)
+  story_ref.update(updates)
