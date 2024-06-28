@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,10 +23,12 @@ env_file = os.path.join(BASE_DIR, '.env')
 env = environ.Env()
 environ.Env.read_env(env_file)
 
-
 # Debug: Print the environment variable
 FIREBASE_CRED_PATH = env('FIREBASE_CRED_PATH')
 
+# Ensure the variable is set correctly
+if FIREBASE_CRED_PATH == 'Not Set':
+    raise ImproperlyConfigured("Set the FIREBASE_CRED_PATH environment variable")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -56,6 +59,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
