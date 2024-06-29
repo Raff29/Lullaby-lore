@@ -7,7 +7,8 @@ from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 
-@api_view(['POST'])
+
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def register_view(request):
     if request.method == 'POST':
@@ -16,8 +17,11 @@ def register_view(request):
             user = serializer.save()
             return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'GET':
+        return Response({"message": "This is the registration page. Please POST your registration details."}, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
+
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def login_view(request):
     if request.method == 'POST':
@@ -30,9 +34,11 @@ def login_view(request):
                 "token": token.key
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'GET':
+        return Response({"message": "This is the login page. Please POST your login details."}, status=status.HTTP_200_OK)
+
 
 @api_view(['POST'])
 def logout_view(request):
-    if request.method == 'POST':
-        logout(request)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    logout(request)
+    return Response(status=status.HTTP_204_NO_CONTENT)
