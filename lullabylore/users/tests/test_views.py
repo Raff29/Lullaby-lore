@@ -60,6 +60,9 @@ class LoginViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn('user', response.data)
         self.assertNotIn('token', response.data)
+        
+    def tearDown(self) -> None:
+        return super().tearDown()
 
 class LogoutViewTests(APITestCase):
     def setUp(self):
@@ -70,3 +73,6 @@ class LogoutViewTests(APITestCase):
     def test_logout_user(self):
         response = self.client.post(reverse('logout'))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        
+    def tearDown(self) -> None:
+        return super().tearDown()
