@@ -3,7 +3,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 
-
 class RegisterViewTests(APITestCase):
     def test_register_user(self):
         response = self.client.post(
@@ -30,7 +29,6 @@ class RegisterViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 0)
-
 
 class LoginViewTests(APITestCase):
     def setUp(self):
@@ -62,10 +60,6 @@ class LoginViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn('user', response.data)
         self.assertNotIn('token', response.data)
-
-    def tearDown(self) -> None:
-        return super().tearDown()
-
 
 class LogoutViewTests(APITestCase):
     def setUp(self):
