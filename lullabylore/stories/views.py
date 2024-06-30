@@ -7,7 +7,6 @@ from .firestore_service import add_story, get_all_stories, get_random_story, upd
 def is_admin(user):
     return user.is_authenticated and user.is_staff
 
-
 @user_passes_test(is_admin)
 @require_http_methods(["POST"])
 def add_story_view(request):
