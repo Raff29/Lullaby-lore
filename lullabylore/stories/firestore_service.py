@@ -28,6 +28,9 @@ def add_favourite_story(user_profile, story_id, title):
         return True
     else:
         return False
+    
+def get_favourite_stories(user_profile):
+    return user_profile.favourite_stories.all()
 
 
 def get_random_story():

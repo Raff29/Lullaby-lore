@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -62,3 +63,12 @@ def add_favourite_story_view(request):
         return Response({'message': 'Story added to favourites'}, status=status.HTTP_201_CREATED)
     else:
         return Response({'message': 'Story already exists in favourites!'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_favourite_stories_view(request):
+    user = request.user.userprofile
+    favourite_stories = list(user.favourite_stories.all().values())
+    return JsonResponse(favourite_stories, safe=False)
+    
