@@ -26,6 +26,8 @@ def add_favourite_story(user_profile, story_id, title):
     if not user_profile.favourite_stories.filter(story_id=story_id).exists():
         user_profile.favourite_stories.add(favourite_story)
         return True
+    else:
+        return False
 
 
 def get_random_story():
