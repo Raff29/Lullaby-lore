@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'stories',
-    'users',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [

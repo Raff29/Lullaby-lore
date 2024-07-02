@@ -15,12 +15,15 @@ def add_story(title, content, author, age_group, date):
 
 
 def add_favourite_story(user_profile, story_id, title):
+    if not story_id:
+        raise ValueError("story_id must be provided and not empty")
+    
     favourite_story, created = FavouriteStories.objects.get_or_create(
-        firebase_story_id=story_id,
+        story_id=story_id,
         defaults={'title': title}
     )
 
-    if not user_profile.favourite_stories.filter(firebase_story_id=story_id).exists():
+    if not user_profile.favourite_stories.filter(story_id=story_id).exists():
         user_profile.favourite_stories.add(favourite_story)
         return True
 
@@ -35,11 +38,8 @@ def get_random_story():
 def get_all_stories():
     stories_ref = db.collection("stories")
     docs = stories_ref.stream()
-
-    stories = []
-    for doc in docs:
-        stories.append(doc.to_dict())
-    return stories
+    all_stories = [{'id': docs.id, **docs.to_dict()} for docs in docs]
+    return all_stories
 
 
 def update_story(story_id, updates):

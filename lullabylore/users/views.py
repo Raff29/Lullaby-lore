@@ -1,8 +1,9 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
+from stories.firestore_service import add_favourite_story
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
@@ -42,3 +43,16 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_favourite_story_view(request):
+    user = request.user.userprofile
+    story_id = request.data.get('id')
+    title = request.data.get('title')
+
+    if add_favourite_story(user, story_id, title):
+        return Response({'message': 'Story added to favourites successfully!'})
+    else:
+        return Response({'message': 'Story already exists in favourites!'}, status=status.HTTP_400_BAD_REQUEST)
