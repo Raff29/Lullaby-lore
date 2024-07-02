@@ -118,3 +118,25 @@ class AddFavouriteStoryViewTests(APITestCase):
 
     def tearDown(self):
         return super().tearDown()
+    
+class GetFavouriteStoriesViewTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@test.com',
+                                             password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+
+    def test_get_favourite_story(self):
+        
+        self.client.post(
+            reverse('favourite-stories'),
+            {
+                'id': 1,
+                'title': 'Test Story'
+            }
+        )
+        response = self.client.get(reverse('my-favourite-stories'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        favourite_stories = response.json()
+        self.assertIsInstance(favourite_stories, list)
+        self.assertEqual(len(favourite_stories), 1)
+        
