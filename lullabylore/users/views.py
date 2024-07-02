@@ -7,6 +7,7 @@ from stories.firestore_service import add_favourite_story
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
+from .models import UserProfile
 
 
 @api_view(['GET', 'POST'])
@@ -48,11 +49,16 @@ def logout_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_favourite_story_view(request):
-    user = request.user.userprofile
+    user = request.user
+    if not hasattr(user, 'userprofile'):
+        user_profile = UserProfile.objects.create(user=user)
+    else:
+        user_profile = user.userprofile
+        
     story_id = request.data.get('id')
     title = request.data.get('title')
 
-    if add_favourite_story(user, story_id, title):
+    if add_favourite_story(user_profile, story_id, title):
         return Response({'message': 'Story added to favourites successfully!'})
     else:
         return Response({'message': 'Story already exists in favourites!'}, status=status.HTTP_400_BAD_REQUEST)
