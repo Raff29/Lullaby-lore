@@ -59,6 +59,6 @@ def add_favourite_story_view(request):
     title = request.data.get('title')
 
     if add_favourite_story(user_profile, story_id, title):
-        return Response({'message': 'Story added to favourites successfully!'})
+        return Response({'message': 'Story added to favourites'}, status=status.HTTP_201_CREATED)
     else:
         return Response({'message': 'Story already exists in favourites!'}, status=status.HTTP_400_BAD_REQUEST)
