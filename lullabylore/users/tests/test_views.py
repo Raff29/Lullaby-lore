@@ -2,6 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
+from users.models import UserProfile
 
 class RegisterViewTests(APITestCase):
     def test_register_user(self):
@@ -75,4 +76,45 @@ class LogoutViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         
     def tearDown(self) -> None:
+        return super().tearDown()
+class AddFavouriteStoryViewTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@test.com',
+                                             password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+
+    def test_add_favourite_story(self):
+        response = self.client.post(
+            reverse('favourite-stories'),
+            {
+                'id': 1,
+                'title': 'Test Story'
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data, {'message': 'Story added to favourites'})
+
+    def test_add_existing_favourite_story(self):
+        UserProfile.objects.get_or_create(user=self.user)
+        response = self.client.post(
+            reverse('favourite-stories'),
+            {
+                'id': 1,
+                'title': 'Test Story'
+            }
+        )
+        
+        response = self.client.post(
+        reverse('favourite-stories'),
+            {
+                'id': 1,
+                'title': 'Test Story'
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {'message': 'Story already exists in favourites!'})
+
+    def tearDown(self):
         return super().tearDown()
