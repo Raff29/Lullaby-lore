@@ -1,6 +1,6 @@
 from django.test import TestCase
 from unittest import mock
-from ..firestore_service import get_all_stories, add_story, get_random_story, update_story, delete_story
+from ..firestore_service import delete_story, get_all_stories, add_story, get_random_story, update_story
 
 
 class StoryServiceTests(TestCase):
@@ -51,65 +51,70 @@ class StoryServiceTests(TestCase):
         self.assertEqual(stories[1]['title'], 'Random Story 2')
 
 
-@mock.patch('stories.firestore_service.db.collection')
-def test_get_random_story_service(self, mock_get_all_stories):
-    mock_get_all_stories.return_value = [
-        {'title': 'Random Story', 'content': 'This is a random test story.',
-            'author': 'Random Author', 'age_group': '3-5', 'date': mock.ANY},
-        {'title': 'Random Story 2', 'content': 'This is a random test story 2.',
-            'author': 'Random Author 2', 'age_group': '3-5', 'date': mock.ANY}
-    ]
+    @mock.patch('stories.firestore_service.db.collection')
+    def test_get_random_story_service(self, mock_db_collection):
+        mock_document_ref = mock.Mock()
+        mock_collection_ref = mock.Mock()
+        mock_collection_ref.document.return_value = mock_document_ref
+        mock_db_collection.return_value = mock_collection_ref
+        
+        mock_stream = mock.Mock()
+        mock_stream.return_value = iter([
+            mock.Mock(to_dict=lambda: {'title': 'Random Story', 'content': 'This is a random test story.','author': 'Random Author', 'age_group': '3-5', 'date': mock.ANY}),
+            mock.Mock(to_dict=lambda: {'title': 'Random Story 2', 'content': 'This is a random test story 2.','author': 'Random Author 2', 'age_group': '3-5', 'date': mock.ANY}),
+        ])
+        
+        mock_collection_ref.stream = mock_stream
 
-    story = get_random_story()
-    self.assertIsInstance(story, dict)
-    self.assertIn('title', story)
-    self.assertIn(story['title'], ['Random Story', 'Random Story 2'])
-    self.assertIn('content', story)
-    self.assertIn('author', story)
-    self.assertIn('age_group', story)
-
-
-@mock.patch('stories.firestore_service.db.collection')
-def test_update_story_service(mock_db_collection):
-    mock_story_ref = mock.Mock()
-    mock_db_collection.return_value.document.return_value = mock_story_ref
-
-    update_story('story_id', {'title': 'Updated Story', 'content': 'This is an updated story.',
-                 'author': 'Updated Author', 'age_group': '3-5', 'date': '2021-01-01'})
-
-    mock_db_collection.assert_called_once_with('stories')
-    mock_db_collection.return_value.document.assert_called_once_with(
-        'story_id')
-    mock_story_ref.update.assert_called_once_with({
-        'title': 'Updated Story',
-        'content': 'This is an updated story.',
-        'author': 'Updated Author',
-        'age_group': '3-5',
-        'date': '2021-01-01',
-    })
+        story = get_random_story()
+        self.assertIsInstance(story, dict)
+        self.assertIn('title', story)
+        self.assertIn(story['title'], ['Random Story', 'Random Story 2'])
+        self.assertIn('content', story)
+        self.assertIn('author', story)
+        self.assertIn('age_group', story)
 
 
-@mock.patch('stories.firestore_service.db.collection')
-def test_delete_story_service(self, mock_get_all_stories, mock_db_collection):
-    existing_stories_before_deletion = [
-        {'story_id': '1', 'title': 'Story 1'},
-        {'story_id': '2', 'title': 'Story to be deleted'},
-        {'story_id': '3', 'title': 'Story 2'},
-    ]
+    @mock.patch('stories.firestore_service.db.collection')
+    def test_update_story_service(self, mock_db_collection):
+        mock_story_ref = mock.Mock()
+        mock_db_collection.return_value.document.return_value = mock_story_ref
 
-    mock_get_all_stories.return_value = existing_stories_before_deletion
+        update_story('story_id', {'title': 'Updated Story', 'content': 'This is an updated story.',
+                    'author': 'Updated Author', 'age_group': '3-5', 'date': '2021-01-01'})
 
-    delete_story('2')
+        mock_db_collection.assert_called_once_with('stories')
+        mock_db_collection.return_value.document.assert_called_once_with(
+            'story_id')
+        mock_story_ref.update.assert_called_once_with({
+            'title': 'Updated Story',
+            'content': 'This is an updated story.',
+            'author': 'Updated Author',
+            'age_group': '3-5',
+            'date': '2021-01-01',
+        })
 
-    updated_stories_after_deletion = [
-        story for story in existing_stories_before_deletion if story['story_id'] != '2'
-    ]
 
-    mock_get_all_stories.return_value = updated_stories_after_deletion
+    @mock.patch('stories.firestore_service.db.collection')
+    def test_delete_story_service(self, mock_db_collection):
+        mock_document_ref = mock.Mock()
+        mock_collection_ref = mock.Mock()
+        mock_collection_ref.document.return_value = mock_document_ref
+        mock_db_collection.return_value = mock_collection_ref
+        
+        mock_stream = mock.Mock()
+        mock_stream.return_value = iter([
+        mock.Mock(to_dict=lambda: {'story_id': '1', 'title': 'Story 1'}),
+        mock.Mock(to_dict=lambda: {'story_id': '2', 'title': 'Story to be deleted'}),
+        mock.Mock(to_dict=lambda: {'story_id': '3', 'title': 'Story 2'}),
+    ])
+        mock_collection_ref.stream = mock_stream
+        
+        delete_story('2')
+        mock_collection_ref.document.assert_called_once_with('2')
+        mock_document_ref.delete.assert_called_once()
 
-    stories = get_all_stories()
-
-    self.assertNotIn(
-        {'story_id': '2', 'title': 'Story to be deleted'}, stories)
-
-#TODO: Add test for add_favourite_story, get_favourite_stories, delete_favourite_story
+        stories = get_all_stories()
+        
+        self.assertNotIn(
+            {'story_id': '2', 'title': 'Story to be deleted'}, stories)
