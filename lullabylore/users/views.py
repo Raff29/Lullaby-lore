@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
-from stories.firestore_service import add_favourite_story
+from stories.firestore_service import add_favourite_story, delete_favourite_story
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
@@ -71,4 +71,12 @@ def get_favourite_stories_view(request):
     user = request.user.userprofile
     favourite_stories = list(user.favourite_stories.all().values())
     return JsonResponse(favourite_stories, safe=False)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_favourite_story_view(request, story_id):
+    user = request.user.userprofile
+    delete_favourite_story(user,story_id)
+    return Response(status=status.HTTP_204_NO_CONTENT)
+    
     

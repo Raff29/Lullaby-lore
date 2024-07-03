@@ -14,25 +14,6 @@ def add_story(title, content, author, age_group, date):
     })
 
 
-def add_favourite_story(user_profile, story_id, title):
-    if not story_id:
-        raise ValueError("story_id must be provided and not empty")
-    
-    favourite_story, created = FavouriteStories.objects.get_or_create(
-        story_id=story_id,
-        defaults={'title': title}
-    )
-
-    if not user_profile.favourite_stories.filter(story_id=story_id).exists():
-        user_profile.favourite_stories.add(favourite_story)
-        return True
-    else:
-        return False
-    
-def get_favourite_stories(user_profile):
-    return user_profile.favourite_stories.all()
-
-
 def get_random_story():
     stories = get_all_stories()
     if stories:
@@ -55,3 +36,27 @@ def update_story(story_id, updates):
 def delete_story(story_id):
     story_ref = db.collection("stories").document(story_id)
     story_ref.delete()
+
+
+def add_favourite_story(user_profile, story_id, title):
+    if not story_id:
+        raise ValueError("story_id must be provided and not empty")
+    
+    favourite_story, created = FavouriteStories.objects.get_or_create(
+        story_id=story_id,
+        defaults={'title': title}
+    )
+
+    if not user_profile.favourite_stories.filter(story_id=story_id).exists():
+        user_profile.favourite_stories.add(favourite_story)
+        return True
+    else:
+        return False
+    
+def get_favourite_stories(user_profile):
+    return user_profile.favourite_stories.all()
+
+def delete_favourite_story(user_profile, story_id):
+    favourite_story = FavouriteStories.objects.get(story_id=story_id)
+    user_profile.favourite_stories.remove(favourite_story.id)
+    favourite_story.delete()
