@@ -111,3 +111,5 @@ def test_delete_story_service(self, mock_get_all_stories, mock_db_collection):
 
     self.assertNotIn(
         {'story_id': '2', 'title': 'Story to be deleted'}, stories)
+
+#TODO: Add test for add_favourite_story, get_favourite_stories, delete_favourite_story
